@@ -1,6 +1,9 @@
 # secrets file will not be checked in
 secrets.py
 
+# our database should not be repo
+*.sq3
+
 # vagrant stuff
 .vagrant/
 
