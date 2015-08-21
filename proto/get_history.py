@@ -121,7 +121,7 @@ def print_this_month(cards):
   month_items = []
   for k,v in cards.items():
     history = [hi[0] for hi in v['history']]
-    if 'this month' in history:
+    if 'this month' in history or 'this week' in history or 'do today' in history or 'in progress' in history:
       month_items.append(v)
   #
   thismonth = []
