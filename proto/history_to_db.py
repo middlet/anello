@@ -101,7 +101,7 @@ def update_database(trello, conn):
 if __name__ == '__main__':
   if OAUTH_TOKEN!='[insert token here]':
     trello = TrelloClient(API_KEY, token=OAUTH_TOKEN)
-    cursor = create_db("../datastore.sq3")
+    cursor = create_db("../anello/datastore.sq3")
 
     #while(True):
     update_database(trello, cursor)

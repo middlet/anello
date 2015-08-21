@@ -2,7 +2,7 @@
 secrets.py
 
 # our database should not be repo
-*.sq3
+*.sqlite3
 
 # vagrant stuff
 .vagrant/
