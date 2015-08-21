@@ -35,7 +35,7 @@ def create_db(fname):
   c.execute("select name from sqlite_master where type='table';")
   if len(c.fetchall())==0:
     print("\tcreating table")
-    c.execute('''create table query (id integer primary key, payload text, date text)''')
+    c.execute('''create table dashboard_query (id integer primary key, payload text, date text)''')
     conn.commit()
   return conn
 
@@ -91,7 +91,7 @@ def update_database(trello, conn):
   print("\tupdating db")
   dt = datetime.datetime.now()
   cursor = conn.cursor()
-  cursor.execute('''insert into query(payload,date) values(?,?)''', (json.dumps(cards), dt.strftime('%Y-%m-%dT%H:%M:%SZ')))
+  cursor.execute('''insert into dashboard_query(payload,date) values(?,?)''', (json.dumps(cards), dt.strftime('%Y-%m-%dT%H:%M:%SZ')))
   conn.commit()
 
 
@@ -101,7 +101,7 @@ def update_database(trello, conn):
 if __name__ == '__main__':
   if OAUTH_TOKEN!='[insert token here]':
     trello = TrelloClient(API_KEY, token=OAUTH_TOKEN)
-    cursor = create_db("../anello/datastore.sq3")
+    cursor = create_db("../anello/datastore.sqlite3")
 
     #while(True):
     update_database(trello, cursor)

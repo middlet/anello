@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+class Query(models.Model):
+  payload = models.TextField()
+  date = models.CharField(max_length=50)
