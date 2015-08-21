@@ -1,0 +1,47 @@
+---
+- name: install the python trello api
+  hosts: all
+  user: vagrant
+  tasks:
+  - name: install python3 pip
+    sudo: yes
+    apt:
+      name: python3-pip
+      state: installed
+      update_cache: yes
+  - name: install dependencies for trello
+    pip:
+      name: "{{item}}"
+      state: present
+    with_items:
+    - requests
+    - requests-oauthlib
+    - python-dateutil
+  - name: install py-trello
+    pip:
+      name: py-trello
+      state: present
+      executable: pip3
+  - name: install django
+    pip:
+      name: django==1.8
+      state: present
+      executable: pip3
+  - name: install sqlite
+    apt:
+      name: sqlite3
+      state: installed
+  # fix the bash prompt (magenta is good)
+  - name: turn on colour prompt in bashrc
+    lineinfile:
+      dest: /home/vagrant/.bashrc
+      regexp: "^#?force_color_prompt=yes"
+      line: "force_color_prompt=yes"
+      backup: yes
+      state: present
+  - name: change the prompt colour to magenta
+    replace:
+      dest: /home/vagrant/.bashrc
+      regexp: "32m"
+      replace: "35m"
+      backup: yes
