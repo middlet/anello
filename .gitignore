@@ -1,6 +1,9 @@
 # secrets file will not be checked in
 secrets.py
 
+# vagrant stuff
+.vagrant/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
