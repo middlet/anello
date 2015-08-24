@@ -105,6 +105,7 @@ if __name__ == '__main__':
 
     #while(True):
     update_database(trello, cursor)
+    print('\tdone')
 
 
 
