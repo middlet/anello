@@ -35,7 +35,7 @@ def home_page(request):
   labels = [d0+datetime.timedelta(days=di) for di in range(0,number_days)]
   labels = [di.strftime('%y-%m-%d') for di in labels]
   #
-  return render(request, 'home.html', {'number_completed':number_completed, 'number_thismonth':number_thismonth, 'done':done_list, 'thismonth':this_month, 'labels': labels, 'done_hist': done_hist, 'ideal_bdown': ideal_bdown, 'actual_bdown': actual_bdown, 'query_time':parser.parse(data.date)})
+  return render(request, 'home.html', {'number_completed':number_completed, 'number_thismonth':number_thismonth, 'done':done_list, 'thismonth':this_month, 'labels': labels, 'done_hist': done_hist, 'ideal_bdown': ideal_bdown, 'actual_bdown': actual_bdown, 'query_time':dateparser.parse(data.date)})
 
 
 def get_done_list(cards):
