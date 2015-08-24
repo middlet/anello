@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from .models import Query
 
+from calendar import monthrange
 from dateutil import parser as dateparser
+from itertools import accumulate
 
+import datetime
 import json
 
 def home_page(request):
@@ -14,9 +17,27 @@ def home_page(request):
   done_list, number_completed = get_done_list(cards)
   this_month, number_thismonth = get_this_month(cards, done_list)
   # create the graph data
+  d0 = this_month[0][0] # just the first date this month
+  number_days = monthrange(d0.year,d0.month)[1]
+  days = list(range(1,number_days+1))
+  # create a histogram based on the done list
+  done_hist = [0]*number_days
+  for k,v in done_list.items():
+    for vi in v:
+      thisday = vi[0].day-1
+      done_hist[thisday] += 1
+  # ideal burn down chart based on total tasks evenly spread throughout the month
+  ideal_bdown = [number_thismonth-di*number_thismonth/(number_days-1) for di in range(0,number_days)]
+  # actual burndown chart
+  actual_bdown = [number_thismonth-si for si in accumulate(done_hist)]
+  # get the day labels
+  d0 = datetime.datetime(d0.year,d0.month,1)
+  labels = [d0+datetime.timedelta(days=di) for di in range(0,number_days)]
+  labels = [di.strftime('%y-%m-%d') for di in labels]
 
 
-  return render(request, 'home.html', {'number_completed':number_completed, 'number_thismonth':number_thismonth, 'done':done_list, 'thismonth':this_month})
+
+  return render(request, 'home.html', {'number_completed':number_completed, 'number_thismonth':number_thismonth, 'done':done_list, 'thismonth':this_month, 'labels': labels, 'done_hist': done_hist, 'ideal_bdown': ideal_bdown, 'actual_bdown': actual_bdown})
 
 
 def get_done_list(cards):

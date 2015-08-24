@@ -76,5 +76,59 @@
             </div> <!-- /.col-md-6 -->
         </div> <!-- /.row -->
       </div> <!-- /.container-fluid -->
+      <!-- javascript loads at the end -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.
+min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstra
+p.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"
+charset="utf-8"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js"
+></script>
+      <script type="text/javascript">
+var today = new Date();
+var dd = today.getDate();
+var mm = today.getMonth()+1;
+var yyyy = today.getFullYear();
+if (dd<10){
+    dd='0'+dd;
+}
+if (mm<10){
+    mm='0'+mm;
+}
+var today = yyyy+'-'+mm+'-'+dd;
+
+var chart = c3.generate({
+    bindto: '#chart',
+    data: {
+        x: 'x',
+        columns: [
+            ['x',  {% for li in labels %} {% if not forloop.last %}'{{li}}',{% else %}'{{li}}'{% endif %}{% endfor %}],
+            ['tasks done', {% for hi in done_hist %} {% if not forloop.last %}{{hi}},{% else %}{{hi}}{% endif %}{% endfor %}],
+           ['tasks left', {% for gi in actual_bdown %} {% if not forloop.last %}{{gi}},{% else %}{{gi}}{% endif %}{% endfor %}],
+           ['ideal tasks', {% for gi in ideal_bdown %} {% if not forloop.last %}{{gi}},{% else %}{{gi}}{% endif %}{% endfor %}]
+        ],
+        types: {
+            'tasks done': 'bar'
+        },
+    },
+    axis: {
+        'x': {
+            type: 'timeseries',
+            tick: {
+                format: '%Y-%m-%d'
+            }
+        }
+    },
+    grid: {
+        'x': {
+            lines: [
+                {value: today, text: 'today'}
+            ]
+        }
+    }
+});
+
+      </script>
     </body>
 </head>
