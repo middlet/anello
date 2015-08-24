@@ -25,12 +25,56 @@
             <div class="col-md-3">
             <div class="panel panel-primary">
             <div class="panel-heading">
-                <h1  class="text-center">{{number_thismonth}} items this month</h1>
+                <h1  class="text-center">{{number_thismonth}} items</h1>
             </div> <!-- /.panel-heading -->
             </div> <!-- /.panel -->
             </div> <!-- /.col-md-3 -->
         </div> <!-- /.row -->
-
+        <div class="row">
+            <div class="col-md-12">
+                <div id="chart"></div>
+            </div> <!-- /.col-md-12 -->
+        </div> <!-- /.row -->
+        <div class="row">
+            <div class="col-md-6">
+            <div class="panel panel-success">
+            <div class="panel-heading">done list</div>
+            <div class="panel-body">
+                {% for di,items in done.items %}
+                    <b>{{di}}</b>
+                    <ul>
+                    {% for it in items %}
+                        <li>{{it.0|date:'Ymd'}} : {{it.1}}</li>
+                        {% if it.2 %}
+                        <ul>
+                        {% for ci in it.2 %}
+                            <li>{{ci.1}}
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                    {% endfor %}
+                    </ul>
+                {% endfor %}
+            </div> <!-- /.panel-body -->
+            </div> <!-- /.panel -->
+            </div> <!-- /.col-md-6 -->
+            <div class="col-md-6">
+            <div class="panel panel-success">
+            <div class="panel-heading">this month</div>
+            <div class="panel-body">
+                <ol>
+                {% for m in thismonth %}
+                    {% if m.3 %}
+                    <li style="color:red"><strike>{{m.0|date:"Y-m-d H:i:s"}}: <b>{{m.1}}</b> {{m.2}}</strike></li>
+                    {% else %}
+                    <li style="color:green">{{m.0|date:"Y-m-d H:i:s"}}: <b>{{m.1}}</b> {{m.2}}</li>
+                    {% endif %}
+                {% endfor %}
+                </ol>
+            </div> <!-- /.panel-body -->
+            </div> <!-- /.panel -->
+            </div> <!-- /.col-md-6 -->
+        </div> <!-- /.row -->
       </div> <!-- /.container-fluid -->
     </body>
 </head>
