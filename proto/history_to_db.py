@@ -95,17 +95,16 @@ def update_database(trello, conn):
   conn.commit()
 
 
-
-
-
 if __name__ == '__main__':
   if OAUTH_TOKEN!='[insert token here]':
     trello = TrelloClient(API_KEY, token=OAUTH_TOKEN)
     cursor = create_db("../anello/datastore.sqlite3")
 
-    #while(True):
-    update_database(trello, cursor)
-    print('\tdone')
+    while(True):
+      print('{:%Y-%m-%dT%H:%M:%S}'.format(datetime.datetime.now()))
+      update_database(trello, cursor)
+      print('\tdone')
+      time.sleep(600) # wait 10 minutes
 
 
 
