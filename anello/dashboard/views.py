@@ -33,7 +33,7 @@ def home_page(request):
   # get the day labels
   d0 = datetime.datetime(d0.year,d0.month,1)
   labels = [d0+datetime.timedelta(days=di) for di in range(0,number_days)]
-  labels = [di.strftime('%y-%m-%d') for di in labels]
+  labels = [di.strftime('%Y-%m-%d') for di in labels]
   #
   return render(request, 'home.html', {'number_completed':number_completed, 'number_thismonth':number_thismonth, 'done':done_list, 'thismonth':this_month, 'labels': labels, 'done_hist': done_hist, 'ideal_bdown': ideal_bdown, 'actual_bdown': actual_bdown, 'query_time':dateparser.parse(data.date)})
 
