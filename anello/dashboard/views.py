@@ -19,23 +19,64 @@ def home_page(request):
   # create the graph data
   d0 = this_month[0][0] # just the first date this month
   number_days = monthrange(d0.year,d0.month)[1]
-  days = list(range(1,number_days+1))
-  # create a histogram based on the done list
-  done_hist = [0]*number_days
-  for k,v in done_list.items():
-    for vi in v:
-      thisday = vi[0].day-1
-      done_hist[thisday] += 1
   # ideal burn down chart based on total tasks evenly spread throughout the month
-  ideal_bdown = [number_thismonth-di*number_thismonth/(number_days-1) for di in range(0,number_days)]
+  ideal_bdown = compute_ideal_burndown(cards, number_days)
   # actual burndown chart
-  actual_bdown = [number_thismonth-si for si in accumulate(done_hist)]
+  done_hist = compute_done_histogram(done_list, number_days)
+  actual_bdown = compute_actual_burndown(cards, done_hist, number_days)
   # get the day labels
   d0 = datetime.datetime(d0.year,d0.month,1)
   labels = [d0+datetime.timedelta(days=di) for di in range(0,number_days)]
   labels = [di.strftime('%Y-%m-%d') for di in labels]
   #
   return render(request, 'home.html', {'number_completed':number_completed, 'number_thismonth':number_thismonth, 'done':done_list, 'thismonth':this_month, 'labels': labels, 'done_hist': done_hist, 'ideal_bdown': ideal_bdown, 'actual_bdown': actual_bdown, 'query_time':dateparser.parse(data.date)})
+
+def compute_done_histogram(done_list, number_days):
+  # create a histogram based on the done list
+  done_hist = [0]*number_days
+  for k,v in done_list.items():
+    for vi in v:
+      thisday = vi[0].day-1
+      done_hist[thisday] += 1
+  return done_hist
+
+
+def compute_actual_burndown(cards, done_hist, number_days):
+    #actual_bdown = [number_thismonth-si for si in accumulate(done_hist)]
+    # create a histogram of all the additions this month
+    dates = sorted([dateparser.parse(cards[ci]['created']) for ci in cards if cards[ci]['list']!='someday'])
+    newitems = [0]*number_days
+    for di in dates:
+      newitems[di.day-1] += 1
+    # cumulative freq of new items
+    newitems_cumfreq = [si for si in accumulate(newitems)]
+    # cumulative freq of completed items
+    donehist_cumfreq = [si for si in accumulate(done_hist)]
+    # the actual burndown is just the difference
+    actual_bdown = [newitems_cumfreq[ii]-val for ii,val in enumerate(donehist_cumfreq)]
+    #
+    return actual_bdown
+
+
+def compute_ideal_burndown(cards, number_days):
+    # create a histogram of all the additions this month
+    dates = sorted([dateparser.parse(cards[ci]['created']) for ci in cards if cards[ci]['list']!='someday'])
+    histo = [0]*number_days
+    for di in dates:
+      histo[di.day-1] += 1
+    # compute the burn down chart
+    index = next((i for i,v in enumerate(histo) if v!=0), None)
+    ideal_bdown = [0]*number_days
+    for ii,hi in enumerate(histo):
+      if ii<index:
+        ideal_bdown[ii] = 0
+        continue
+      if hi>0:
+        curr_total = ideal_bdown[ii]+hi
+        days_left = number_days-ii
+        ideal_bdown[ii:] = [curr_total-di*curr_total/(days_left-1) for di in range(0,days_left)]
+    #
+    return ideal_bdown
 
 
 def get_done_list(cards):
