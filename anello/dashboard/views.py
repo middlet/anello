@@ -8,6 +8,7 @@ from itertools import accumulate
 import datetime
 import json
 
+
 def home_page(request):
   data = Query.objects.all().order_by('date')
   data = data.reverse()[0]
@@ -30,28 +31,12 @@ def home_page(request):
   labels = [d0+datetime.timedelta(days=di) for di in range(0,number_days)]
   labels = [di.strftime('%Y-%m-%d') for di in labels]
 
-
-  # # get the data
-  # done_list, number_completed = get_done_list(cards)
-  # this_month, number_thismonth = get_this_month(cards, done_list)
-  # # create the graph data
-  # d0 = this_month[0][0] # just the first date this month
-  # number_days = monthrange(d0.year,d0.month)[1]
-  # # ideal burn down chart based on total tasks evenly spread throughout the month
-  # ideal_bdown = compute_ideal_burndown(cards, number_days)
-  # # actual burndown chart
-  # done_hist = compute_done_histogram(done_list, number_days)
-  # actual_bdown = compute_actual_burndown(cards, done_hist, number_days)
-  # # get the day labels
-  # d0 = datetime.datetime(d0.year,d0.month,1)
-  # labels = [d0+datetime.timedelta(days=di) for di in range(0,number_days)]
-  # labels = [di.strftime('%Y-%m-%d') for di in labels]
-  #
   return render(request, 'home.html', {'number_completed':number_completed, 'number_thismonth':number_thismonth, 'done':done_dict, 'thismonth':thismonth, 'labels': labels, 'done_hist': done_hist, 'ideal_bdown': ideal_bdown, 'actual_bdown': actual_bdown, 'query_time':dateparser.parse(data.date)})
-  #return render(request, 'home.html', {'number_completed': number_done, 'done':done_dict, 'number_thismonth':number_thismonth, 'thismonth':thismonth, 'done_hist':done_hist, 'ideal_bdown':ideal_bdown, 'actual_bdown':actual_bdown, 'query_time':dateparser.parse(data.date)})
+
 
 def days_in_month(adate):
     return monthrange(adate.year, adate.month)[1]
+
 
 def create_done_dict(cards):
   done_items = [v for k,v in cards.items() if v['history'][0][0]=='done']
@@ -70,6 +55,7 @@ def create_done_dict(cards):
   #
   return done_dict
 
+
 def create_thismonth_list(cards):
   done_items = [v['name'] for k,v in cards.items() if v['history'][0][0]=='done']
   tmonth_items = []
@@ -86,6 +72,7 @@ def create_thismonth_list(cards):
   #
   return sorted(tmonth_items, reverse=True)
 
+
 def create_done_histogram(done_dict):
   number_days = days_in_month(next(iter(done_dict.values()))[0][0])
   data = [0]*number_days
@@ -96,6 +83,7 @@ def create_done_histogram(done_dict):
       done_hist[thisday] += 1
   #
   return done_hist
+
 
 def compute_actual_burndown(cards):
   dd = create_done_dict(cards)
@@ -113,6 +101,7 @@ def compute_actual_burndown(cards):
   actual_bdown = [newitems_cumfreq[ii]-val for ii,val in enumerate(done_cumfreq)]
   #
   return actual_bdown
+
 
 def compute_ideal_burndown(cards):
   dd = create_done_dict(cards)
