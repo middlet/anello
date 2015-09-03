@@ -39,6 +39,44 @@ def create_db(fname):
     conn.commit()
   return conn
 
+def json_datetime_serialize(obj):
+    if isinstance(obj, datetime.datetime):
+        serialized = obj.isoformat()
+        return serialized
+    raise TypeError("type not serializable")
+
+def split_name(cname):
+    if type(cname)==type(b''):
+        cname = cname.decode()
+    name = cname.strip()
+    if cname.find(':')>=0:
+        name = cname.split(':')[1]
+        name = name.strip()
+    #
+    return name
+
+def get_checklists(card_item):
+  checklists = []
+  for ch in card_item.checklists:
+    for check in ch.items:
+      checklists.append((check['checked'], check['name']))
+  #
+  return checklists
+
+def get_history(card_item):
+  # get creation date
+  card_item.fetch_actions(action_filter='createCard')
+  creation_date = dateparser.parse(card_item.actions[0]['date'])
+  creation_list = card_item.actions[0]['data']['list']['name']
+  # construct the cards history
+  history = []
+  for hi in card_item.listCardMove_date():
+    history.append(hi[1:])
+  # append the creation date
+  history.append([creation_list, creation_date])
+  #
+  return history
+
 def get_all_details(trello):
   """
   get all the lists on a trello board
@@ -46,38 +84,11 @@ def get_all_details(trello):
   print("\tquerying API")
   board = trello.get_board(BOARD_ID)
   all_lists = board.all_lists()
-
-  # create a dictioary of all the cards and their history
   cards = {}
   for li in all_lists:
     for ci in li.list_cards():
-      # get all the card info and the creation date
       ci.fetch()
-      ci.fetch_actions(action_filter='createCard')
-      # get the name without any prefix
-      actual_name = ci.name.decode()
-      if actual_name.find(':'):
-        actual_name = actual_name.split(':')[1].strip()
-      # get the labels
-      actual_labels = []
-      for ai in ci.labels:
-        actual_labels.append(ai.name.decode())
-      # initial data to insert
-      datum = {"name":actual_name, "labels":actual_labels,
-               "created":ci.actions[0]['date'],
-               "list":li.name.decode()}
-      # get the history of this card (list, date)
-      history = []
-      for mi in ci.listCardMove_date():
-        history.append([mi[1], mi[2].strftime('%Y-%m-%dT%H:%M:%SZ')])
-      if len(history)==0:
-        history = [[datum['list'], datum['created']]]
-      datum['history'] = history
-      checklists = []
-      for chlist in ci.checklists:
-        for check in chlist.items:
-          checklists.append((check['checked'], check['name']))
-      datum['checklists'] = checklists
+      datum = {'name':split_name(ci.name), 'labels':[tag.name.decode() for tag in ci.labels], 'checklist': get_checklists(ci), 'history': get_history(ci)}
       cards[ci.id] = datum
   #
   return cards
@@ -91,7 +102,7 @@ def update_database(trello, conn):
   print("\tupdating db")
   dt = datetime.datetime.now()
   cursor = conn.cursor()
-  cursor.execute('''insert into dashboard_query(payload,date) values(?,?)''', (json.dumps(cards), dt.strftime('%Y-%m-%dT%H:%M:%SZ')))
+  cursor.execute('''insert into dashboard_query(payload,date) values(?,?)''', (json.dumps(cards, default=json_datetime_serialize), dt.strftime('%Y-%m-%dT%H:%M:%SZ')))
   conn.commit()
 
 
